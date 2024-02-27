@@ -2,16 +2,28 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Layout from './components/Layout'// es el diseño que se puede reutilizar
+import NuevoCliente, { action as nuevoClienteAction } from './pages/NuevoCliente'//las paginas que se definen con routin (lo que cambia) 
+import Index, { loader as clientesLoader } from './pages/Index'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <h1>inicio con router</h1>
+    element: <Layout/>,
+    children: [
+      {
+        index: true,// habilita añadir mas elementos en el diseño de la pag principal
+        element: <Index />,
+        loader: clientesLoader
+      },
+      {
+        path: '/clientes/nuevo',
+        element: <NuevoCliente/>,
+        action: nuevoClienteAction
+      }
+    ]
   },
-  {
-    path: '/nosotros',
-    element: <h1>Desde nosotros</h1>
-  }
+
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
