@@ -4,8 +4,8 @@ import Error from '../components/Error';
 
 export async function action({request}) {
   const dataForm = await request.formData()
-  const datos = Object.fromEntries(dataForm)
-
+  const datos = Object.fromEntries(dataForm)//consultar fromEntries, formatear los datos 
+  
   //Para validar el email: obtengo el email del formulario
   const email = dataForm.get('email')
   
