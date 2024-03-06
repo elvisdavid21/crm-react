@@ -1,7 +1,17 @@
+import { useNavigate, Form, redirect } from 'react-router-dom'
+import {eliminarCliente} from '../data/clientes'
+
+export async function action({params}) {
+    await eliminarCliente(params.clienteId)
+    return redirect('/')
+}
 
 const Cliente = ({cliente}) => {
 
-    const {nombre, empresa, email, telefono} = cliente
+    //Para la nevegacion con el boton editar/eliminar
+    const navigate = useNavigate()
+
+    const {nombre, empresa, email, telefono, id} = cliente
 
   return (
     <>
@@ -15,12 +25,28 @@ const Cliente = ({cliente}) => {
                 <p className="font-bold text-blue-800"><span className="text-blue-800 uppercase font-bold">Tel: </span> {telefono}</p>
             </td>
             <td className="p-4 flex space-x-4 space-text-center">
-                <button className="text-blue-800 hover:text-blue-700 uppercase font-bold text-xs">
+                <button 
+                    className="text-blue-800 hover:text-blue-700 uppercase font-bold text-xs"
+                    onClick={() => navigate(`/clientes/${id}/editar`)}
+                >
                     editar
                 </button>
-                <button className="text-red-600 hover:text-red-700 uppercase font-bold text-xs">
-                    eliminar
-                </button>
+                <Form 
+                    method='post'
+                    action={`/clientes/${id}/eliminar`}
+                    onSubmit={e => {
+                        if(!confirm('Deseas eliminar el registro?')) {
+                            e.preventDefault()/*para evitar la ejecucion automatica del action*/
+                        }
+                    }}  
+                >
+                    <button 
+                        type='submit'
+                        className="text-red-600 hover:text-red-700 uppercase font-bold text-xs">
+                        eliminar
+                    </button>
+                </Form>
+                
             </td>
         </tr>
     </>

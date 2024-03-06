@@ -1,9 +1,23 @@
-import { useNavigate, Form, useActionData, redirect } from 'react-router-dom'
-import Formulario from '../components/Formulario';
-import Error from '../components/Error';
-import {agregarCliente} from '../data/clientes'
+import { useNavigate, useLoaderData, useActionData, Form, redirect } from 'react-router-dom'
+import { obtenerCliente, actualizarCliente } from '../data/clientes'
+import Formulario from '../components/Formulario'
+import Error from '../components/Error'
 
-export async function action({request}) {
+//El loader se ejecuta cuando carga el componente, desde esta funcion recuperamos en id del cliente y se llena el formulario de forma automatica
+export async function loader({params}) {
+    const cliente = await obtenerCliente(params.clienteId)
+    console.log(cliente)
+    if(Object.values(cliente).length === 0) {
+      throw new Response('', {
+        status: 404,
+        statusText: 'No hay Resultados'
+      })
+    }
+  return cliente
+}
+
+//Para actualizar un registro de cliente
+export async function action({request, params}) {
   const dataForm = await request.formData()//formData() almacena los datos que el usuario a ingresado en el formulario
   const datos = Object.fromEntries(dataForm)//consultar fromEntries, formatear los datos, método estático transforma una lista de pares clave-valor en un objeto.
   
@@ -29,19 +43,22 @@ export async function action({request}) {
   //A continuacion se pueden agregar los datos ya que significa que la validacion ya fue superada con exito, se genero un id random
   const generaID = Math.random(6).toFixed(2).slice(2)
   datos.id = Number(generaID)
-  await agregarCliente(datos)
+  await actualizarCliente(params.clienteId, datos)
   return redirect('/')
 }
 
-const NuevoCliente = () => {
+const EditarCliente = () => {
 
-  const navigate = useNavigate();
-  const errores = useActionData();
+  const navigate = useNavigate()
+
+  const cliente = useLoaderData()
+
+  const errores = useActionData()
 
   return (
     <>
-      <h1 className="font-black text-4xl text-blue-900 text-center">Nuevo Cliente</h1>
-      <p className="mt-3 text-2xl">Llena todos los campos para registrar un nuevo cliente</p>
+      <h1 className="font-black text-4xl text-blue-900 text-center">Editar Cliente</h1>
+      <p className="mt-3 text-2xl">Actualiza los datos del cliente</p>
 
       <div className="flex justify-end mt-3">
         <button 
@@ -58,12 +75,14 @@ const NuevoCliente = () => {
           method='post'
           noValidate //elimina la validacion del formulario proveeida por html5
         >
-          <Formulario/>
+          <Formulario 
+            cliente={cliente}
+          />
 
           <input 
             type="submit" 
             className='mt-5 w-full bg-blue-800 p-3 uppercase font-bold text-white text-lg'
-            value='Registrar Cliente'
+            value='Editar Cliente'
           />
         </Form>
       </div>
@@ -71,4 +90,4 @@ const NuevoCliente = () => {
   )
 }
 
-export default NuevoCliente
+export default EditarCliente
